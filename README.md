@@ -1,6 +1,6 @@
 # nodeX
 
-nodeX is a Vite + Express + MongoDB WhatsApp bot hosting workspace with secure email authentication, an internal KES wallet, Paystack Inline checkout, database-backed files, and Heroku Teams deployment.
+nodeX is a Vite + Express + MongoDB WhatsApp bot hosting workspace with secure email authentication, an internal KES wallet, Paystack Redirect checkout, database-backed files, and Heroku Teams deployment.
 
 ## Local setup
 
@@ -41,7 +41,7 @@ Passwords are bcrypt-hashed. Sessions use JWTs stored in httpOnly cookies. Login
 - `POST /api/wallet/paystack/verify`
 - `GET /api/wallet/balance`
 
-The frontend uses `PaystackPop.setup(...).openIframe()` with no redirect. The backend verifies against Paystack using `PAYSTACK_SECRET_KEY`. A verified KES 70 payment credits exactly 70 to the internal, non-withdrawable wallet.
+The frontend initializes a secure Paystack Redirect checkout through `/api/paystack/initialize`. Paystack returns the customer to `/wallet?verify=true&reference=...`; the backend verifies against Paystack using `PAYSTACK_SECRET_KEY`. A verified KES 70 payment credits exactly 70 to the internal, non-withdrawable wallet.
 
 ### Files
 
@@ -75,7 +75,7 @@ The deploy pipeline does not print or persist the Heroku API key in application 
 - `/` — Overview
 - `/files` — My Files with upload, editor, save, download, and delete
 - `/deployments` — Heroku release history and app links
-- `/wallet` — Paystack Inline funding
+- `/wallet` — Paystack Redirect funding
 - `/settings` — Account and runtime details
 - `/login`, `/signup`, `/forgot-password`
 
