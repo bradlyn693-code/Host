@@ -18,7 +18,7 @@ const api = async (path, options = {}) => {
   const headers = { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...(options.headers || {}) };
   const response = await fetch(`${API}${path}`, { ...options, headers, credentials: 'include' });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || 'Something went wrong.');
+  if (!response.ok) { const error = new Error(data.message || data.error || 'Something went wrong.'); error.status = response.status; error.data = data; throw error; }
   return data;
 };
 
