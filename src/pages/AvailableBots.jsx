@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, ArrowRight, CheckCircle2, ExternalLink, LoaderCircle, X } from 'lucide-react';
 import BotCard from '../components/BotCard.jsx';
+const AVAILABLE_BOT_SLUGS = new Set(['little-foxy', 'wolfbot']);
 
 const PAIR_SITES = { foxybot: 'https://foxy.pairsite.space/', wolfbot: 'https://pair.xwolf.space/' };
 
@@ -13,7 +14,7 @@ function DeployModal({ bot, api, navigate, onClose, onComplete }) {
 
 export default function AvailableBots({ api, navigate, featuredOnly = false }) {
   const [bots, setBots] = useState([]); const [selected, setSelected] = useState(null); const [message, setMessage] = useState('');
-  useEffect(() => { api(`/api/bots/${featuredOnly ? 'featured' : 'all'}`).then((result) => setBots(result.bots || [])).catch((error) => setMessage(error.message)); }, [featuredOnly]);
+  useEffect(() => { api(`/api/bots/${featuredOnly ? 'featured' : 'all'}`).then((result) => setBots((result.bots || []).filter((bot) => AVAILABLE_BOT_SLUGS.has(bot.slug)))).catch((error) => setMessage(error.message)); }, [featuredOnly]);
   function manage(bot) { navigate(`/bots/${bot.slug}/logs`); }
   return <section className={featuredOnly ? 'available-section' : 'available-page'}><div className="available-heading"><div><div className="eyebrow">FLUXYTECH HOSTING / {featuredOnly ? 'FEATURED' : 'AVAILABLE BOTS'}</div><h2>{featuredOnly ? 'Available Bots' : 'Choose your bot'}</h2><p className="muted">Deploy battle-tested automations to your own server with one secure setup.</p></div>{featuredOnly && <button className="text-link-btn" onClick={() => navigate('/bots')}>View all bots <ArrowRight size={14} /></button>}</div>{message && <div className="notice error"><AlertCircle size={16} />{message}</div>}<div className="bot-grid">{bots.map((bot) => <BotCard key={bot.slug} bot={bot} onDeploy={setSelected} onManage={manage} />)}</div>{selected && <DeployModal bot={selected} api={api} navigate={navigate} onClose={() => setSelected(null)} onComplete={(result) => { setSelected(null); setMessage(`${result.bot.name} deployed successfully at ${result.appUrl}. New balance: KES ${result.new_balance ?? result.wallet_balance}`); }} />}</section>;
 }

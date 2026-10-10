@@ -47,12 +47,8 @@ const Deployment = mongoose.models.Deployment || mongoose.model('Deployment', de
 const botSeeds = [
   { slug: 'wolfbot', name: 'WOLFBOT', codename: 'Cyber Wolf', description: 'A focused WhatsApp automation wolf built for always-on communities.', version: 'v2.4.1', theme: 'green', featured: true, status: 'Online', uptime: '12d 4h', ramUsed: 512, ramLimit: 1024, cpu: 12, repo: REPOS.wolfbot, pairUrl: PAIR_SITES.wolfbot, deployCommand: 'git clone https://github.com/WOLVAREX/silentwolf.git wolfbot && cd wolfbot && npm install && npm start', env: { SESSION_ID: 'from pair site', PREFIX: '.', OWNER_NUMBER: 'required', BOT_NAME: 'WOLFBOT', PORT: '3000', MONGODB_URI: 'from secure runtime secret' } },
   { slug: 'little-foxy', name: 'LITTLE FOXY', codename: 'Trickster Fox', description: 'A quick, playful automation bot with a public queue mode.', version: 'v1.9.0', theme: 'orange', featured: true, status: 'Online', uptime: '3d 12h', ramUsed: 256, ramLimit: 512, queue: 22, repo: REPOS.foxybot, pairUrl: PAIR_SITES.foxybot, deployCommand: 'git clone https://github.com/WOLVAREX/FOXY.git foxybot && cd foxybot && npm install && node http://index.js', env: { SESSION_ID: 'from pair site', PREFIX: '.', OWNER_NUMBER: 'required', PORT: '3001', MONGODB_URI: 'from secure runtime secret', FOXY_MODE: 'public' } },
-  { slug: 'night-owl', name: 'NIGHT OWL', codename: 'Coming Soon', version: 'v1.0.0', theme: 'purple', comingSoon: true, status: 'Coming soon' },
-  { slug: 'iron-panda', name: 'IRON PANDA', codename: 'Coming Soon', version: 'v1.0.0', theme: 'blue', comingSoon: true, status: 'Coming soon' },
-  { slug: 'spark-jaguar', name: 'SPARK JAGUAR', codename: 'Coming Soon', version: 'v1.0.0', theme: 'green', comingSoon: true, status: 'Coming soon' },
-  { slug: 'orbit-raven', name: 'ORBIT RAVEN', codename: 'Coming Soon', version: 'v1.0.0', theme: 'orange', comingSoon: true, status: 'Coming soon' },
 ];
-async function seedBots() { for (const bot of botSeeds) await Bot.updateOne({ slug: bot.slug }, { $set: bot }, { upsert: true }); }
+async function seedBots() { const availableSlugs = botSeeds.map((bot) => bot.slug); await Bot.deleteMany({ slug: { $nin: availableSlugs } }); for (const bot of botSeeds) await Bot.updateOne({ slug: bot.slug }, { $set: bot, $unset: { comingSoon: '' } }, { upsert: true }); }
 function publicBot(bot) { const value = bot.toObject ? bot.toObject() : bot; return { ...value, id: String(value._id || value.slug), _id: undefined }; }
 
 app.use(helmet());
